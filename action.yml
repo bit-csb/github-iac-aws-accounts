@@ -89,8 +89,13 @@ runs:
     - name: Copy files configuration files back
       shell: bash
       run: |
-        mv ./github-iac-aws-accounts/terraform/configuration/bit-*.tf ./iac-aws-accounts/configuration/
-        mv ./github-iac-aws-accounts/terraform/configuration/aws_*.tf ./iac-aws-accounts/configuration/
+        cp ./github-iac-aws-accounts/terraform/configuration/*.tf ./iac-aws-accounts/configuration/
+
+    - name: Remove Non-Configuration files
+      shell: bash
+      working-directory: ./iac-aws-accounts/configuration
+      run: |
+        rm -f main.tf provider.tf terraform.tf variables.tf 
 
     - name: Update iac repo
       shell: bash
