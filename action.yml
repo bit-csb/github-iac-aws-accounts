@@ -1,0 +1,128 @@
+name: "Github Action IAC AWS Account"
+
+description: "Github Composite Action for IAC AWS Account, inlcuding the invitation of the users"
+
+inputs:
+  message_body:
+    description: "Customized message body you want to send if you don't want to send the default message."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        path: 'iac-aws-accounts'
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        repository: 'bit-csb/github-iac-aws-accounts'
+        path: 'github-iac-aws-accounts'
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Invititations
+      uses: bit-csb/github-azuread-invitation@v3
+      with:
+        map-file: "./iac-aws-accounts/creation/accounts.tf"
+        map-name: "account_map"
+        users-property: "owners"
+        message_body: "${{ inputs.message_body }}"
+
+    - name: Copy files
+      shell: bash
+      run: |
+        cp ./iac-aws-accounts/creation/*.tf ./github-iac-aws-accounts/terraform/creation/
+        cp ./iac-aws-accounts/environment/backend-creation.tf ./github-iac-aws-accounts/terraform/creation/backend.tf
+        cp ./iac-aws-accounts/environment/variables-creation.tfvars ./github-iac-aws-accounts/terraform/creation/variables.tfvars
+
+        # cp ./iac-aws-accounts/configuration/*.tf ./github-iac-aws-accounts/terraform/configuration/
+        cp ./iac-aws-accounts/environment/backend-configuration.tf ./github-iac-aws-accounts/terraform/configuration/backend.tf
+        cp ./iac-aws-accounts/environment/variables-configuration.tfvars ./github-iac-aws-accounts/terraform/configuration/variables.tfvars
+
+    - name: Configure ssh
+      uses: bit-csb/github-configure-ssh@v2
+      with:
+        privateSshKey: ${{ secrets.BIT_CSB_SSH_PRIVATE_KEY }}
+
+    - name: Ensure account count does not decrease
+      shell: bash
+      run: |
+        typeset -i currentCount=$(grep -E "^\s*(bit-aws-.*.tf|aws_(t|i|p)_[[:alnum:]]{8}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{12})\s*=\s*\{$" creation/accounts.tf -c)
+        typeset -i previousCount=$(cat counter)
+        if [ "$currentCount" -lt "$previousCount" ]; then
+          >&2 echo "Number of accounts: currentCount $currentCount must not be lower than previousCount $previousCount"
+          exit 1
+        else
+          echo "$currentCount" > counter
+        fi
+
+    - name: Check folder content of creation
+      shell: bash
+      working-directory: "./github-iac-aws-accounts/terraform/creation"
+      run: ls -lra
+
+    # - name: Create AWS Accounts
+    #   uses: bit-csb/github-terraform-flow@v3
+    #   with:
+    #     directory: "./github-iac-aws-accounts/terraform/creation"
+    #     backend-config: "backend.tfvars"
+    #     var-file: "variables.tfvars"
+
+    # - name: Ensure account count does not decrease
+    #   shell: bash
+    #   run: |
+    #     typeset -i currentCount=$(ls -1 ./github-iac-aws-accounts/terraform/configuration | grep -E "^(bit-aws-.*.tf|aws_(t|i|p)_[[:alnum:]]{8}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{12}.tf)$" -c)
+    #     typeset -i previousCount=$(cat counter)
+    #     if [ "$currentCount" -lt "$previousCount" ]; then
+    #       >&2 echo "Number of accounts: currentCount $currentCount must not be lower than previousCount $previousCount"
+    #       exit 1
+    #     else
+    #       echo "$currentCount" > counter
+    #     fi
+
+    # - name: Check folder content of creation
+    #   shell: bash
+    #   working-directory: "./github-iac-aws-accounts/terraform/creation"
+    #   run: ls -lra
+
+    # # - name: Configure AWS Accounts
+    # #   uses: bit-csb/github-terraform-flow@v3
+    # #   with:
+    # #     directory: "./github-iac-aws-accounts/terraform/configuration"
+    # #     backend-config: "backend.tfvars"
+    # #     var-file: "variables.tfvars"
+
+    # - name: Copy files configuration files back
+    #   shell: bash
+    #   run: |
+    #     cp ./github-iac-aws-accounts/terraform/configuration/*.tf ./iac-aws-accounts/configuration/
+
+    # - name: Remove Non-Configuration files
+    #   shell: bash
+    #   working-directory: ./iac-aws-accounts/configuration
+    #   run: |
+    #     rm -f main.tf provider.tf terraform.tf variables.tf
+
+    # - name: Update iac repo
+    #   shell: bash
+    #   working-directory: ./iac-aws-accounts
+    #   run: |
+    #     if [ -n "$(git status --porcelain)" ]; then
+    #       echo "The following files in the folder ./configuration have changed:";
+    #       git status --porcelain
+    #       git pull origin main
+
+    #       git config user.name 'Github Workflow'
+    #       git config user.email 'csb@bit.admin.ch'
+    #       git remote set-url origin git@github-bit-csb:$GITHUB_REPOSITORY
+    #       git add --all
+    #       git commit -m "Update of counter after terraform apply for ./creation"
+    #       git push origin main
+
+    #     else
+    #       echo "no changes";
+    #     fi
