@@ -65,12 +65,22 @@ runs:
       working-directory: "./github-iac-aws-accounts/terraform/creation"
       run: ls -lra
 
-    # - name: Create AWS Accounts
-    #   uses: bit-csb/github-terraform-flow@v3
-    #   with:
-    #     directory: "./github-iac-aws-accounts/terraform/creation"
-    #     backend-config: "backend.tfvars"
-    #     var-file: "variables.tfvars"
+    - name: Check folder content of configuration - before
+      shell: bash
+      working-directory: "./github-iac-aws-accounts/terraform/configuration"
+      run: ls -lra
+
+    - name: Create AWS Accounts
+      uses: bit-csb/github-terraform-flow@v3
+      with:
+        directory: "./github-iac-aws-accounts/terraform/creation"
+        backend-config: "backend.tfvars"
+        var-file: "variables.tfvars"
+
+    - name: Check folder content of configuration - after
+      shell: bash
+      working-directory: "./github-iac-aws-accounts/terraform/configuration"
+      run: ls -lra
 
     # - name: Ensure account count does not decrease
     #   shell: bash
