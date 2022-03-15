@@ -36,11 +36,11 @@ runs:
       shell: bash
       run: |
         cp ./iac-aws-accounts/creation/*.tf ./github-iac-aws-accounts/terraform/creation/
-        cp ./iac-aws-accounts/environment/backend-creation.tf ./github-iac-aws-accounts/terraform/creation/backend.tfvars
+        cp ./iac-aws-accounts/environment/backend-creation.tfvars ./github-iac-aws-accounts/terraform/creation/backend.tfvars
         cp ./iac-aws-accounts/environment/variables-creation.tfvars ./github-iac-aws-accounts/terraform/creation/variables.tfvars
 
         mv ./iac-aws-accounts/configuration/*.tf ./github-iac-aws-accounts/terraform/configuration/
-        cp ./iac-aws-accounts/environment/backend-configuration.tf ./github-iac-aws-accounts/terraform/configuration/backend.tfvars
+        cp ./iac-aws-accounts/environment/backend-configuration.tfvars ./github-iac-aws-accounts/terraform/configuration/backend.tfvars
         cp ./iac-aws-accounts/environment/variables-configuration.tfvars ./github-iac-aws-accounts/terraform/configuration/variables.tfvars
 
     - name: Configure ssh
