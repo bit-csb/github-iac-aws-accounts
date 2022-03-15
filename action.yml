@@ -60,16 +60,6 @@ runs:
           echo "$currentCount" > counter
         fi
 
-    - name: Check folder content of creation
-      shell: bash
-      working-directory: "./github-iac-aws-accounts/terraform/creation"
-      run: ls -lra
-
-    - name: Check folder content of configuration - before
-      shell: bash
-      working-directory: "./github-iac-aws-accounts/terraform/configuration"
-      run: ls -lra
-
     - name: Create AWS Accounts
       uses: bit-csb/github-terraform-flow@v3
       with:
@@ -77,62 +67,47 @@ runs:
         backend-config: "backend.tfvars"
         var-file: "variables.tfvars"
 
-    - name: Check folder content of configuration - after
+    - name: Ensure account count does not decrease
       shell: bash
-      working-directory: "./github-iac-aws-accounts/terraform/configuration"
-      run: ls -lra
+      run: |
+        typeset -i currentCount=$(ls -1 ./github-iac-aws-accounts/terraform/configuration | grep -E "^(bit-aws-.*.tf|aws_(t|i|p)_[[:alnum:]]{8}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{12}.tf)$" -c)
+        typeset -i previousCount=$(cat counter)
+        if [ "$currentCount" -lt "$previousCount" ]; then
+          >&2 echo "Number of accounts: currentCount $currentCount must not be lower than previousCount $previousCount"
+          exit 1
+        else
+          echo "$currentCount" > counter
+        fi
 
-    # - name: Ensure account count does not decrease
-    #   shell: bash
-    #   run: |
-    #     typeset -i currentCount=$(ls -1 ./github-iac-aws-accounts/terraform/configuration | grep -E "^(bit-aws-.*.tf|aws_(t|i|p)_[[:alnum:]]{8}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{12}.tf)$" -c)
-    #     typeset -i previousCount=$(cat counter)
-    #     if [ "$currentCount" -lt "$previousCount" ]; then
-    #       >&2 echo "Number of accounts: currentCount $currentCount must not be lower than previousCount $previousCount"
-    #       exit 1
-    #     else
-    #       echo "$currentCount" > counter
-    #     fi
+    - name: Configure AWS Accounts
+      uses: bit-csb/github-terraform-flow@v3
+      with:
+        directory: "./github-iac-aws-accounts/terraform/configuration"
+        backend-config: "backend.tfvars"
+        var-file: "variables.tfvars"
 
-    # - name: Check folder content of creation
-    #   shell: bash
-    #   working-directory: "./github-iac-aws-accounts/terraform/creation"
-    #   run: ls -lra
+    - name: Copy files configuration files back
+      shell: bash
+      run: |
+        mv ./github-iac-aws-accounts/terraform/configuration/bit-.tf ./iac-aws-accounts/configuration/
+        mv ./github-iac-aws-accounts/terraform/configuration/aws_*.tf ./iac-aws-accounts/configuration/
 
-    # # - name: Configure AWS Accounts
-    # #   uses: bit-csb/github-terraform-flow@v3
-    # #   with:
-    # #     directory: "./github-iac-aws-accounts/terraform/configuration"
-    # #     backend-config: "backend.tfvars"
-    # #     var-file: "variables.tfvars"
+    - name: Update iac repo
+      shell: bash
+      working-directory: ./iac-aws-accounts
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "The following files in the folder ./configuration have changed:";
+          git status --porcelain
+          git pull origin main
 
-    # - name: Copy files configuration files back
-    #   shell: bash
-    #   run: |
-    #     cp ./github-iac-aws-accounts/terraform/configuration/*.tf ./iac-aws-accounts/configuration/
+          git config user.name 'Github Workflow'
+          git config user.email 'csb@bit.admin.ch'
+          git remote set-url origin git@github-bit-csb:$GITHUB_REPOSITORY
+          git add --all
+          git commit -m "Update of counter after terraform apply for ./creation"
+          git push origin main
 
-    # - name: Remove Non-Configuration files
-    #   shell: bash
-    #   working-directory: ./iac-aws-accounts/configuration
-    #   run: |
-    #     rm -f main.tf provider.tf terraform.tf variables.tf
-
-    # - name: Update iac repo
-    #   shell: bash
-    #   working-directory: ./iac-aws-accounts
-    #   run: |
-    #     if [ -n "$(git status --porcelain)" ]; then
-    #       echo "The following files in the folder ./configuration have changed:";
-    #       git status --porcelain
-    #       git pull origin main
-
-    #       git config user.name 'Github Workflow'
-    #       git config user.email 'csb@bit.admin.ch'
-    #       git remote set-url origin git@github-bit-csb:$GITHUB_REPOSITORY
-    #       git add --all
-    #       git commit -m "Update of counter after terraform apply for ./creation"
-    #       git push origin main
-
-    #     else
-    #       echo "no changes";
-    #     fi
+        else
+          echo "no changes";
+        fi
