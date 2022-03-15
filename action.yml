@@ -89,7 +89,7 @@ runs:
     - name: Copy files configuration files back
       shell: bash
       run: |
-        mv ./github-iac-aws-accounts/terraform/configuration/bit-.tf ./iac-aws-accounts/configuration/
+        mv ./github-iac-aws-accounts/terraform/configuration/bit-*.tf ./iac-aws-accounts/configuration/
         mv ./github-iac-aws-accounts/terraform/configuration/aws_*.tf ./iac-aws-accounts/configuration/
 
     - name: Update iac repo
