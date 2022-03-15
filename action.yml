@@ -39,7 +39,7 @@ runs:
         cp ./iac-aws-accounts/environment/backend-creation.tf ./github-iac-aws-accounts/terraform/creation/backend.tf
         cp ./iac-aws-accounts/environment/variables-creation.tfvars ./github-iac-aws-accounts/terraform/creation/variables.tfvars
 
-        # cp ./iac-aws-accounts/configuration/*.tf ./github-iac-aws-accounts/terraform/configuration/
+        mv ./iac-aws-accounts/configuration/*.tf ./github-iac-aws-accounts/terraform/configuration/
         cp ./iac-aws-accounts/environment/backend-configuration.tf ./github-iac-aws-accounts/terraform/configuration/backend.tf
         cp ./iac-aws-accounts/environment/variables-configuration.tfvars ./github-iac-aws-accounts/terraform/configuration/variables.tfvars
 
