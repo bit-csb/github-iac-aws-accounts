@@ -46,7 +46,7 @@ runs:
     - name: Configure ssh
       uses: bit-csb/github-configure-ssh@v2
       with:
-        privateSshKey: ${{ secrets.BIT_CSB_SSH_PRIVATE_KEY }}
+        privateSshKey: $BIT_CSB_SSH_PRIVATE_KEY
 
     - name: Ensure account count does not decrease
       shell: bash
