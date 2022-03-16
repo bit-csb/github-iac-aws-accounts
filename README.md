@@ -12,7 +12,7 @@ flowchart LR
     id_rw --composite action--> id_terraform[github-terraform-flow]
 ```
 
-# Sequence
+# Github Workflow Sequence
 ```mermaid
 sequenceDiagram
     autonumber
@@ -25,7 +25,7 @@ sequenceDiagram
     id_rw -->> id_rw: Checkout calling repository
     id_rw -->> id_rw: Checkout github-iac-aws-accounts
     id_rw -->> id_rw: Setup Terraform
-    id_rw ->> id_invite: Perform Invititations
+    id_rw ->> id_invite: Perform Invitations
     id_rw -->> id_rw: Copy files
     id_rw ->> id_ssh: Configure ssh
     id_rw -->> id_rw: Ensure account count does not decrease
@@ -36,3 +36,17 @@ sequenceDiagram
     id_rw -->> id_rw: Remove Non-Configuration files
     id_rw ->> id_iac: Update iac repo
 ```
+
+# Terraform
+The Terraform implementation relies on three parts of the calling repository:
+* the file *./iac-aws-accounts/creation/accounts.tf* which contains details about the AWS Accounts that should be managed.
+* the folder *environment* which contains tfvars files for both backend configuration and plan/apply variables for both AWS Account creation and configuration.
+
+## Perform Invititations
+The GitHub composite action call *Perform Invitations* relies on the file *./iac-aws-accounts/creation/accounts.tf*. The action ensure that each user mentioned in the file as owner of an AWS account is invited to current Azure AD tenant.
+
+## Create AWS Accounts
+The Terraform files in folder *creation* (from this repository) together the file *./iac-aws-accounts/creation/accounts.tf* (from the calling repository) cover the creation of AWS Accounts via Terraform module *bit-csb/terraform-aws-account-creation*. In addition to that a configuration file for each AWS Account is generated and stored in the folder *configuration*.
+
+## Configure AWS Accounts
+The Terraform files in folder *configuration* (from this repository) together the files from the previous creation step cover the configuration of each AWS Account via the Terraform Module *bit-csb/terraform-aws-account-configuration*.

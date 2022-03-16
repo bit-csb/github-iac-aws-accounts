@@ -61,7 +61,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Perform Invititations
+      - name: Perform Invitations
         uses: bit-csb/github-azuread-invitation@v3
         with:
           map-file: "./iac-aws-accounts/creation/accounts.tf"
