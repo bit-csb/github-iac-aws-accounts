@@ -3,6 +3,6 @@ locals {
 }
 
 locals {
-  new_aws_enterpries_app_script_uri = "https://${var.sa_name}.blob.core.windows.net/deploymentscripts/New-AWSEnterpriseApp.ps1?${local.sas}"
+  new_aws_enterpries_app_script_uri = "https://${var.sa_name}.blob.core.windows.net/deploymentscripts/New-AWSEnterpriseApp.ps1${local.sas}"
   synchonzication_job_script_uri    = "https://${var.sa_name}.blob.core.windows.net/deploymentscripts/Enable-Provisioning.ps1${local.sas}"
 }
