@@ -1,15 +1,15 @@
 name: "Github Workflow IAC AWS Account"
 
-description: "Github Reusable Workflow for IAC AWS Account, inlcuding the invitation of the users"
-
 on:
   workflow_call:
     inputs:
       message_body:
         description: "Customized message body you want to send if you don't want to send the default message."
+        type: string
         required: true
       sa_name:
         description: "Name of storage account holding the deployment scripts"
+        type: string
         required: true
     secrets:
       ARM_ENVIRONMENT:
