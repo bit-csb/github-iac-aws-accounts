@@ -95,7 +95,7 @@ runs:
       shell: bash
       working-directory: ./iac-aws-accounts/configuration
       run: |
-        rm -f main.tf provider.tf terraform.tf variables.tf 
+        rm -f main.tf provider.tf terraform.tf variables.tf locals.tf
 
     - name: Update iac repo
       shell: bash
