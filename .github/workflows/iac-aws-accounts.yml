@@ -47,12 +47,12 @@ jobs:
       BIT_CSB_SSH_PRIVATE_KEY: ${{ secrets.BIT_CSB_SSH_PRIVATE_KEY }}
       TF_VAR_sa_name: ${{ inputs.sa_name }}
     steps:
-      - name: Checkout
+      - name: Checkout calling repository
         uses: actions/checkout@v3
         with:
           path: "iac-aws-accounts"
 
-      - name: Checkout
+      - name: Checkout github-iac-aws-accounts
         uses: actions/checkout@v3
         with:
           repository: "bit-csb/github-iac-aws-accounts"
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Invititations
+      - name: Perform Invititations
         uses: bit-csb/github-azuread-invitation@v3
         with:
           map-file: "./iac-aws-accounts/creation/accounts.tf"
