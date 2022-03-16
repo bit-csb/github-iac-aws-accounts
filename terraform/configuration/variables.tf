@@ -39,12 +39,19 @@ variable "client_secret" {
 
 variable "location" {
   type        = string
-  description = "location"
+  description = "Location for resource group and storage account"
+  default     = "switzerlandnorth"
 }
 
 variable "rg_name" {
   type        = string
-  description = "location"
+  description = "Name of resource group"
+  default = "ea_for_aws"
+}
+
+variable "sa_name" {
+  type        = string
+  description = "Name of storage account"
 }
 
 variable "notification_email_address" {
