@@ -20,8 +20,6 @@ on:
         required: true
       ARM_CLIENT_SECRET:
         required: true
-      GITHUB_TOKEN:
-        required: true
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
