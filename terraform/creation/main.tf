@@ -19,7 +19,7 @@ locals {
 }
 
 module "create-bit-aws-account" {
-  source = "git@github-bit-csb:bit-csb/terraform-aws-account-creation?ref=0.2.1"
+  source = "git@github-bit-csb:bit-csb/terraform-aws-account-creation?ref=0.2.2"
 
   for_each                    = local.account_map
   name                        = each.key
